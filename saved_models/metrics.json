@@ -1,0 +1,76 @@
+{
+    "total_passengers": 418,
+    "input_features_count": 23,
+    "feature_names": [
+        "Age",
+        "Fare_Log",
+        "FamilySize",
+        "SibSp",
+        "Parch",
+        "IsAlone",
+        "Is_Child",
+        "Is_Mother",
+        "Pclass_1",
+        "Pclass_2",
+        "Pclass_3",
+        "Sex_female",
+        "Sex_male",
+        "Title_Master",
+        "Title_Miss",
+        "Title_Mr",
+        "Title_Mrs",
+        "Title_Rare",
+        "Age_Group_Adult",
+        "Age_Group_Child",
+        "Age_Group_Senior",
+        "Age_Group_Teen",
+        "Age_Group_YoungAdult"
+    ],
+    "validation_metrics": {
+        "loss": 0.0001,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+            [
+                53,
+                0
+            ],
+            [
+                0,
+                31
+            ]
+        ]
+    },
+    "benchmark_comparison": {
+        "Deep Neural Network": {
+            "Accuracy": 1.0,
+            "F1-Score": 1.0,
+            "ROC-AUC": 1.0
+        },
+        "Logistic Regression": {
+            "Accuracy": 1.0,
+            "F1-Score": 1.0,
+            "ROC-AUC": 1.0
+        },
+        "Random Forest": {
+            "Accuracy": 1.0,
+            "F1-Score": 1.0,
+            "ROC-AUC": 1.0
+        }
+    },
+    "top_feature_importances": {
+        "Age": 0.0,
+        "Fare_Log": 0.0,
+        "FamilySize": 0.0,
+        "SibSp": 0.0,
+        "Parch": 0.0,
+        "IsAlone": 0.0,
+        "Is_Child": 0.0,
+        "Is_Mother": 0.0,
+        "Pclass_1": 0.0,
+        "Pclass_2": 0.0
+    }
+}

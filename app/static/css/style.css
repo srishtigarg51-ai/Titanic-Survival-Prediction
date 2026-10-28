@@ -1,0 +1,170 @@
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --navy: #0f172a;
+    --navy-light: #1e293b;
+    --card-bg: #ffffff;
+    --body-bg: #f8fafc;
+    --border-color: #e2e8f0;
+    --purple: #8b5cf6;
+}
+
+body {
+    background-color: var(--body-bg);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #1e293b;
+    min-height: 100vh;
+}
+
+.bg-navy {
+    background-color: var(--navy) !important;
+}
+
+.brand-icon {
+    font-size: 1.5rem;
+    color: #38bdf8;
+}
+
+.brand-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+}
+
+.neural-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 0.35rem 0.65rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
+}
+
+/* Nav tabs */
+.nav-pills .nav-link {
+    color: #94a3b8;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.nav-pills .nav-link.active {
+    background-color: var(--primary);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Cards */
+.main-card, .result-card {
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background-color: #ffffff;
+}
+
+.stat-card {
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+/* Preset buttons */
+.preset-btn {
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.85rem;
+    border-color: #cbd5e1;
+    color: #475569;
+    background-color: #f8fafc;
+    transition: all 0.15s ease;
+}
+
+.preset-btn:hover {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+}
+
+/* Progress bar */
+.progress-tall {
+    height: 1.25rem;
+    border-radius: 9999px;
+    background-color: #e2e8f0;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+/* Status icon */
+.status-icon-wrapper {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background-color: #fef2f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.status-icon-wrapper.survived {
+    background-color: #f0fdf4;
+}
+
+.status-icon-wrapper.perished {
+    background-color: #fef2f2;
+}
+
+/* Architecture Flow */
+.arch-layer {
+    transition: transform 0.2s ease;
+}
+
+.arch-layer:hover {
+    transform: scale(1.01);
+}
+
+.arch-arrow {
+    font-size: 1.1rem;
+}
+
+/* Plot boxes */
+.plot-box {
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.plot-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.plot-box img {
+    max-height: 230px;
+    object-fit: contain;
+}
+
+/* Text purple */
+.text-purple {
+    color: var(--purple) !important;
+}
+
+/* Code box */
+.code-box {
+    border: 1px solid #334155;
+    white-space: pre-wrap;
+    word-break: break-all;
+}

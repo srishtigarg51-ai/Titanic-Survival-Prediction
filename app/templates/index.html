@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Survival Prediction | PyTorch Deep Learning System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-navy border-bottom border-secondary shadow-sm sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <span class="brand-icon"><i class="fa-solid fa-ship"></i></span>
+                <div>
+                    <span class="brand-title">Titanic Survival AI</span>
+                    <span class="badge bg-primary ms-2 neural-badge"><i class="fa-solid fa-brain me-1"></i> PyTorch Deep Net</span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="nav nav-pills ms-auto" id="mainTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="predictor-tab" data-bs-toggle="tab" data-bs-target="#predictor" type="button" role="tab">
+                            <i class="fa-solid fa-calculator me-1"></i> Live Predictor
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="explorer-tab" data-bs-toggle="tab" data-bs-target="#explorer" type="button" role="tab">
+                            <i class="fa-solid fa-table-list me-1"></i> Dataset Explorer
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="insights-tab" data-bs-toggle="tab" data-bs-target="#insights" type="button" role="tab">
+                            <i class="fa-solid fa-chart-line me-1"></i> Architecture & Insights
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="api-tab" data-bs-toggle="tab" data-bs-target="#api" type="button" role="tab">
+                            <i class="fa-solid fa-code me-1"></i> REST API
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container-fluid py-4 px-4">
+        <div class="tab-content" id="mainTabContent">
+
+            <!-- TAB 1: PREDICTOR -->
+            <div class="tab-pane fade show active" id="predictor" role="tabpanel">
+                <div class="row g-4">
+                    <!-- Input Form Column -->
+                    <div class="col-lg-7">
+                        <div class="card h-100 shadow-sm border-0 main-card">
+                            <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
+                                <h5 class="mb-0 fw-bold"><i class="fa-solid fa-sliders text-primary me-2"></i>Passenger Attributes</h5>
+                                <span class="text-muted small">Deep Neural Network Tabular Inference</span>
+                            </div>
+                            <div class="card-body p-4">
+                                <!-- Preset Archetypes -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold text-secondary small text-uppercase">Quick-Load Passenger Archetypes</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        {% for p in presets %}
+                                        <button type="button" class="btn btn-outline-secondary btn-sm preset-btn"
+                                            onclick='loadPreset({{ p | tojson | safe }})'>
+                                            <i class="fa-solid fa-user-tag me-1"></i> {{ p.name }} ({{ p.label }})
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <form id="predictionForm" onsubmit="handlePredict(event)">
+                                    <div class="row g-3">
+                                        <!-- Passenger Name -->
+                                        <div class="col-md-8">
+                                            <label class="form-label fw-medium">Full Name & Title</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa-solid fa-id-card"></i></span>
+                                                <input type="text" class="form-control" id="nameInput" name="Name" value="Kelly, Mr. James" required>
+                                            </div>
+                                            <div class="form-text">Title (Mr, Mrs, Miss, Master) is automatically extracted.</div>
+                                        </div>
+
+                                        <!-- Passenger Class -->
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-medium">Passenger Class</label>
+                                            <select class="form-select" id="pclassInput" name="Pclass" required>
+                                                <option value="1">1st Class (Upper Deck)</option>
+                                                <option value="2">2nd Class (Middle Deck)</option>
+                                                <option value="3" selected>3rd Class (Lower Deck)</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Gender -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-medium">Gender</label>
+                                            <div class="d-flex gap-3 pt-1">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="Sex" id="sexMale" value="male" checked>
+                                                    <label class="form-check-label" for="sexMale"><i class="fa-solid fa-mars text-primary me-1"></i> Male</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="Sex" id="sexFemale" value="female">
+                                                    <label class="form-check-label" for="sexFemale"><i class="fa-solid fa-venus text-danger me-1"></i> Female</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Age -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-medium d-flex justify-content-between">
+                                                <span>Age (Years)</span>
+                                                <span class="text-primary fw-bold" id="ageVal">34.5</span>
+                                            </label>
+                                            <input type="range" class="form-range" id="ageRange" min="0.5" max="80" step="0.5" value="34.5"
+                                                oninput="document.getElementById('ageVal').innerText = this.value; document.getElementById('ageInput').value = this.value;">
+                                            <input type="number" class="form-control form-control-sm mt-1 d-none" id="ageInput" name="Age" value="34.5">
+                                        </div>
+
+                                        <!-- Siblings / Spouses -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-medium">Siblings / Spouse (SibSp)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa-solid fa-people-arrows"></i></span>
+                                                <input type="number" class="form-control" id="sibspInput" name="SibSp" min="0" max="10" value="0">
+                                            </div>
+                                            <div class="form-text">Number of siblings or spouses onboard.</div>
+                                        </div>
+
+                                        <!-- Parents / Children -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-medium">Parents / Children (Parch)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa-solid fa-children"></i></span>
+                                                <input type="number" class="form-control" id="parchInput" name="Parch" min="0" max="10" value="0">
+                                            </div>
+                                            <div class="form-text">Number of parents or children onboard.</div>
+                                        </div>
+
+                                        <!-- Fare -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-medium">Ticket Fare (£)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">£</span>
+                                                <input type="number" step="0.01" class="form-control" id="fareInput" name="Fare" value="7.83">
+                                            </div>
+                                            <div class="form-text">Typical 3rd: ~£8, 2nd: ~£20, 1st: ~£80+</div>
+                                        </div>
+
+                                        <!-- Ticket ID -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-medium">Ticket Number / Code</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa-solid fa-ticket"></i></span>
+                                                <input type="text" class="form-control" id="ticketInput" name="Ticket" value="330911">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 pt-2 d-flex gap-3">
+                                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold" id="predictBtn">
+                                            <i class="fa-solid fa-bolt me-2"></i> Compute Survival Prediction
+                                        </button>
+                                        <button type="button" class="btn btn-light px-3 py-2 text-secondary" onclick="resetForm()">
+                                            <i class="fa-solid fa-rotate-left me-1"></i> Reset
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prediction Result Column -->
+                    <div class="col-lg-5">
+                        <div class="card h-100 shadow-sm border-0 result-card">
+                            <div class="card-header bg-transparent py-3">
+                                <h5 class="mb-0 fw-bold"><i class="fa-solid fa-heart-pulse text-danger me-2"></i>Prediction Outcome</h5>
+                            </div>
+                            <div class="card-body p-4 d-flex flex-column justify-content-between" id="resultContainer">
+                                <div>
+                                    <!-- Survival Status Header -->
+                                    <div class="text-center py-3">
+                                        <div class="status-icon-wrapper mb-3" id="statusIconWrapper">
+                                            <i class="fa-solid fa-skull text-danger display-4" id="statusIcon"></i>
+                                        </div>
+                                        <h3 class="fw-bold mb-1" id="statusTitle">Did Not Survive</h3>
+                                        <p class="text-muted" id="statusSub">High Risk of Perishing</p>
+                                    </div>
+
+                                    <!-- Gauge / Progress Bar -->
+                                    <div class="my-3 px-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="fw-semibold">Estimated Survival Probability</span>
+                                            <span class="fw-bold text-primary" id="probPercent">0.01%</span>
+                                        </div>
+                                        <div class="progress progress-tall">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" id="probBar"
+                                                role="progressbar" style="width: 0.01%;">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between text-muted small mt-1">
+                                            <span>0% (Certain Perish)</span>
+                                            <span>50% Threshold</span>
+                                            <span>100% (Certain Survival)</span>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-4">
+
+                                    <!-- Key Insights & Explanations -->
+                                    <div>
+                                        <h6 class="fw-bold text-uppercase text-secondary small mb-3">
+                                            <i class="fa-solid fa-circle-info me-1 text-primary"></i> Neural Network Risk Factor Analysis
+                                        </h6>
+                                        <ul class="list-unstyled mb-0 d-flex flex-column gap-2" id="insightsList">
+                                            <li class="p-2 rounded bg-light border-start border-3 border-danger small">
+                                                Male passengers faced significantly lower evacuation priority.
+                                            </li>
+                                            <li class="p-2 rounded bg-light border-start border-3 border-danger small">
+                                                3rd Class passengers were situated in lower decks with delayed access.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Architecture Info Footer -->
+                                <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center text-muted small">
+                                    <span><i class="fa-solid fa-microchip me-1"></i> PyTorch Residual Tabular Net</span>
+                                    <span>Latency: <strong class="text-success">&lt; 5ms</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: DATASET EXPLORER -->
+            <div class="tab-pane fade" id="explorer" role="tabpanel">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-transparent py-3">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-4">
+                                <h5 class="mb-0 fw-bold"><i class="fa-solid fa-database text-primary me-2"></i>Dataset Explorer ({{ total_passengers }} Passengers)</h5>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+                                    <input type="text" class="form-control" id="searchFilter" placeholder="Search by name or ticket..." oninput="filterPassengers()">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select form-select-sm" id="classFilter" onchange="filterPassengers()">
+                                    <option value="">All Classes</option>
+                                    <option value="1">1st Class</option>
+                                    <option value="2">2nd Class</option>
+                                    <option value="3">3rd Class</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select form-select-sm" id="sexFilter" onchange="filterPassengers()">
+                                    <option value="">All Genders</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <select class="form-select form-select-sm" id="survivalFilter" onchange="filterPassengers()">
+                                    <option value="">Status</option>
+                                    <option value="1">Survived</option>
+                                    <option value="0">Perished</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="passengersTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Passenger Name</th>
+                                        <th>Outcome</th>
+                                        <th>Class</th>
+                                        <th>Sex</th>
+                                        <th>Age</th>
+                                        <th>Family (SibSp / Parch)</th>
+                                        <th>Ticket</th>
+                                        <th>Fare (£)</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="passengersBody">
+                                    <tr>
+                                        <td colspan="10" class="text-center py-4 text-muted">
+                                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div> Loading passengers...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent py-3 d-flex justify-content-between align-items-center">
+                        <div class="small text-muted" id="paginationInfo">Showing 1 to 15 of 418 passengers</div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0" id="paginationControls">
+                                <!-- Populated dynamically -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: MODEL ARCHITECTURE & INSIGHTS -->
+            <div class="tab-pane fade" id="insights" role="tabpanel">
+                <div class="row g-4">
+                    <!-- Metric Cards Row -->
+                    <div class="col-12">
+                        <div class="row g-3">
+                            <div class="col-md-2 col-6">
+                                <div class="card border-0 shadow-sm p-3 stat-card text-center">
+                                    <div class="text-muted small fw-medium">Model Accuracy</div>
+                                    <div class="fs-3 fw-bold text-success">{{ (metrics.validation_metrics.accuracy * 100) | round(2) }}%</div>
+                                    <div class="small text-muted">Validation Set</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="card border-0 shadow-sm p-3 stat-card text-center">
+                                    <div class="text-muted small fw-medium">ROC-AUC Score</div>
+                                    <div class="fs-3 fw-bold text-primary">{{ metrics.validation_metrics.roc_auc }}</div>
+                                    <div class="small text-muted">Discriminative Power</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="card border-0 shadow-sm p-3 stat-card text-center">
+                                    <div class="text-muted small fw-medium">F1-Score</div>
+                                    <div class="fs-3 fw-bold text-info">{{ (metrics.validation_metrics.f1_score * 100) | round(2) }}%</div>
+                                    <div class="small text-muted">Harmonic Mean</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="card border-0 shadow-sm p-3 stat-card text-center">
+                                    <div class="text-muted small fw-medium">Precision</div>
+                                    <div class="fs-3 fw-bold text-purple">{{ (metrics.validation_metrics.precision * 100) | round(2) }}%</div>
+                                    <div class="small text-muted">Positive Predictive</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="card border-0 shadow-sm p-3 stat-card text-center">
+                                    <div class="text-muted small fw-medium">Recall</div>
+                                    <div class="fs-3 fw-bold text-warning">{{ (metrics.validation_metrics.recall * 100) | round(2) }}%</div>
+                                    <div class="small text-muted">Sensitivity</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="card border-0 shadow-sm p-3 stat-card text-center">
+                                    <div class="text-muted small fw-medium">Engineered Features</div>
+                                    <div class="fs-3 fw-bold text-dark">{{ metrics.input_features_count }}</div>
+                                    <div class="small text-muted">Input Dimension</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deep Learning Architecture Diagram -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header bg-transparent py-3">
+                                <h5 class="mb-0 fw-bold"><i class="fa-solid fa-network-wired text-primary me-2"></i>Deep Neural Network Architecture</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <p class="text-muted small">
+                                    Engineered specifically for structured tabular data. Unlike standard multi-layer perceptrons which are prone to overfitting on small tabular samples, this model employs <strong>Residual Skip Connections</strong>, <strong>Batch Normalization</strong>, <strong>SiLU (Swish) activations</strong>, and <strong>Dropout regularization</strong>.
+                                </p>
+                                <div class="arch-flow d-flex flex-column gap-2 text-center my-3">
+                                    <div class="arch-layer bg-light border rounded p-2">
+                                        <div class="fw-bold">Input Layer (23 Features)</div>
+                                        <div class="small text-muted">Demographics, Pclass One-Hot, Scaled Fare & Age, Family Size, Interaction flags</div>
+                                    </div>
+                                    <div class="arch-arrow text-primary"><i class="fa-solid fa-arrow-down"></i></div>
+                                    <div class="arch-layer bg-primary-subtle border border-primary rounded p-2">
+                                        <div class="fw-bold text-primary">Dense Projection + BatchNorm1d + SiLU + Dropout(0.20)</div>
+                                        <div class="small text-muted">Linear(23, 64) -> Normalized Feature Embeddings</div>
+                                    </div>
+                                    <div class="arch-arrow text-primary"><i class="fa-solid fa-arrow-down"></i></div>
+                                    <div class="arch-layer bg-success-subtle border border-success rounded p-2">
+                                        <div class="fw-bold text-success">Residual Block (Skip Connection)</div>
+                                        <div class="small text-muted">Linear(64, 64) -> BatchNorm -> SiLU -> Dropout(0.25) -> Linear(64, 64) + Identity Skip</div>
+                                    </div>
+                                    <div class="arch-arrow text-primary"><i class="fa-solid fa-arrow-down"></i></div>
+                                    <div class="arch-layer bg-info-subtle border border-info rounded p-2">
+                                        <div class="fw-bold text-info">Compression Block</div>
+                                        <div class="small text-muted">Linear(64, 32) -> BatchNorm -> SiLU -> Dropout(0.20) -> Linear(32, 16) -> SiLU</div>
+                                    </div>
+                                    <div class="arch-arrow text-primary"><i class="fa-solid fa-arrow-down"></i></div>
+                                    <div class="arch-layer bg-dark text-white rounded p-2">
+                                        <div class="fw-bold">Classification Head: Linear(16, 1) + Sigmoid</div>
+                                        <div class="small text-light">Binary Survival Probability [0.0 - 1.0]</div>
+                                    </div>
+                                </div>
+
+                                <!-- Model Benchmark Comparison Table -->
+                                <h6 class="fw-bold mt-4 mb-3 text-secondary text-uppercase small">5-Fold Cross Validation Benchmark</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm mb-0 small">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Model</th>
+                                                <th>Accuracy</th>
+                                                <th>F1-Score</th>
+                                                <th>ROC-AUC</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for m_name, scores in metrics.benchmark_comparison.items() %}
+                                            <tr {% if 'Deep' in m_name %}class="table-primary fw-bold"{% endif %}>
+                                                <td>{{ m_name }}</td>
+                                                <td>{{ (scores.Accuracy * 100) | round(2) }}%</td>
+                                                <td>{{ (scores['F1-Score'] * 100) | round(2) }}%</td>
+                                                <td>{{ scores['ROC-AUC'] | round(4) }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Plots Column -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header bg-transparent py-3">
+                                <h5 class="mb-0 fw-bold"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Training & Performance Visuals</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-3">
+                                    <div class="col-md-6 text-center">
+                                        <div class="plot-box border rounded p-2">
+                                            <div class="fw-semibold small mb-1">Loss Curve</div>
+                                            <img src="{{ url_for('static', filename='plots/loss_curve.png') }}" class="img-fluid rounded" alt="Loss Curve">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 text-center">
+                                        <div class="plot-box border rounded p-2">
+                                            <div class="fw-semibold small mb-1">Accuracy Curve</div>
+                                            <img src="{{ url_for('static', filename='plots/accuracy_curve.png') }}" class="img-fluid rounded" alt="Accuracy Curve">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 text-center">
+                                        <div class="plot-box border rounded p-2">
+                                            <div class="fw-semibold small mb-1">Confusion Matrix</div>
+                                            <img src="{{ url_for('static', filename='plots/confusion_matrix.png') }}" class="img-fluid rounded" alt="Confusion Matrix">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 text-center">
+                                        <div class="plot-box border rounded p-2">
+                                            <div class="fw-semibold small mb-1">ROC Curve</div>
+                                            <img src="{{ url_for('static', filename='plots/roc_curve.png') }}" class="img-fluid rounded" alt="ROC Curve">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 text-center mt-2">
+                                        <div class="plot-box border rounded p-2">
+                                            <div class="fw-semibold small mb-1">Deep Net Feature Permutation Importance</div>
+                                            <img src="{{ url_for('static', filename='plots/feature_importance.png') }}" class="img-fluid rounded" alt="Feature Importance">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: REST API & PLAYGROUND -->
+            <div class="tab-pane fade" id="api" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header bg-transparent py-3">
+                                <h5 class="mb-0 fw-bold"><i class="fa-solid fa-terminal text-primary me-2"></i>API Endpoint Reference</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <h6 class="fw-bold text-primary">POST /api/predict</h6>
+                                <p class="text-muted small">Receives passenger attributes in JSON format and returns real-time deep learning inference.</p>
+
+                                <div class="code-box bg-dark text-light p-3 rounded font-monospace small mb-3">
+<span class="text-secondary">// Request Body (application/json)</span>
+{
+  "Name": "Astor, Mrs. John Jacob",
+  "Pclass": 1,
+  "Sex": "female",
+  "Age": 18,
+  "SibSp": 1,
+  "Parch": 0,
+  "Ticket": "PC 17757",
+  "Fare": 227.52
+}
+                                </div>
+
+                                <div class="code-box bg-dark text-light p-3 rounded font-monospace small mb-4">
+<span class="text-secondary">// Response Body (200 OK)</span>
+{
+  "status": "success",
+  "data": {
+    "survived": 1,
+    "survival_label": "Survived",
+    "probability": 0.9999,
+    "probability_percentage": 99.99,
+    "confidence": "High Chance of Survival",
+    "status_color": "success",
+    "insights": [
+      "Female gender is a primary positive survival factor.",
+      "1st Class passengers had preferential proximity to the boat deck."
+    ]
+  }
+}
+                                </div>
+
+                                <h6 class="fw-bold text-primary">GET /api/metrics</h6>
+                                <p class="text-muted small">Returns cross-validation and evaluation metrics across all benchmark models.</p>
+
+                                <h6 class="fw-bold text-primary">GET /api/passengers</h6>
+                                <p class="text-muted small">Query params: <code>search</code>, <code>pclass</code>, <code>sex</code>, <code>survived</code>, <code>page</code>, <code>page_size</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive API Playground -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header bg-transparent py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold"><i class="fa-solid fa-play text-success me-2"></i>Interactive API Playground</h5>
+                                <button class="btn btn-sm btn-outline-primary" onclick="testLiveApi()">
+                                    <i class="fa-solid fa-paper-plane me-1"></i> Send Request
+                                </button>
+                            </div>
+                            <div class="card-body p-4 d-flex flex-column">
+                                <label class="form-label fw-semibold small text-muted">Payload Editor (JSON)</label>
+                                <textarea class="form-control font-monospace small bg-light mb-3" id="apiPayload" rows="10">{
+  "Name": "Goodwin, Mr. Charles Frederick",
+  "Pclass": 3,
+  "Sex": "male",
+  "Age": 40,
+  "SibSp": 1,
+  "Parch": 6,
+  "Ticket": "CA 2144",
+  "Fare": 46.90
+}</textarea>
+
+                                <label class="form-label fw-semibold small text-muted">Live Response</label>
+                                <pre class="p-3 bg-dark text-light rounded font-monospace small flex-grow-1 mb-0" id="apiResponse" style="max-height: 250px; overflow-y: auto;">Click "Send Request" to invoke the live API endpoint...</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
